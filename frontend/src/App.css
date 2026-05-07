@@ -1,0 +1,165 @@
+/* ============================================================
+   page = vertical scroll: index list (top) + doc section
+   ============================================================ */
+
+.page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- rack section (hosts the list) ---------- */
+
+.rack-section {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 64px;
+  box-sizing: border-box;
+}
+
+.rack-pull {
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- list (right-aligned, internally scrollable) ---------- */
+
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  width: 360px;
+  max-width: calc(100vw - 96px);
+}
+
+.list-stack__edge {
+  width: 32px;
+  height: 1px;
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+  margin-right: 14px;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.list-stack__edge.is-on {
+  opacity: 1;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  width: 100%;
+  max-height: 220px; /* ~5 rows */
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.list__item {
+  display: block;
+}
+
+.list__row {
+  appearance: none;
+  background: none;
+  border: none;
+  font: inherit;
+  width: 100%;
+  padding: 9px 14px 9px 0;
+  cursor: pointer;
+  text-align: right;
+  color: var(--ink-soft);
+  transition: color 0.28s ease;
+}
+
+.list__row:hover {
+  color: var(--ink);
+}
+
+.list__row.is-selected {
+  color: var(--ink);
+}
+
+.list__title {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.list__row.is-selected .list__title {
+  font-weight: 600;
+}
+
+.list__bracket {
+  display: inline-block;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ---------- doc (revealed below rack when active) ---------- */
+
+.doc-section {
+  width: 100%;
+  min-height: 100svh;
+  padding: 80px 40px 96px 72px;
+  max-width: 760px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.doc-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  line-height: 1.2;
+  margin: 0 0 28px;
+}
+
+/* ---------- platform section (insular full-page takeover) ---------- */
+
+.platform-section {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 720px) {
+  .rack-section {
+    padding-right: 28px;
+  }
+  .list-stack {
+    width: 100%;
+    max-width: calc(100vw - 48px);
+  }
+  .list {
+    max-height: 200px;
+  }
+  .list__row {
+    padding: 8px 8px 8px 0;
+  }
+  .list__title {
+    font-size: 12px;
+  }
+  .doc-section {
+    padding: 60px 24px 64px 20px;
+  }
+}

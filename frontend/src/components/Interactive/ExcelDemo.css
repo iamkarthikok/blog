@@ -1,0 +1,1384 @@
+/* ============================================================
+   excel-demo · interactive blocks for the excel/qc post
+   ------------------------------------------------------------
+   The spreadsheet block is intentionally styled like an embedded
+   Google Sheets document — pure white surface, Sheets gray tones,
+   Google blue selection, green active-tab indicator, the
+   recognisable menu / formula bar chrome. The other blocks
+   (markdown / qc) keep the minimal site aesthetic.
+   ============================================================ */
+
+/* Outer wrapper for every Excel demo block. One outline lives here so
+   every demo (spreadsheet, markdown, report, slideshow) reads as the
+   same kind of artifact — the `live report` outline applied uniformly. */
+.exd {
+  margin: 24px 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  background: color-mix(in srgb, var(--bg) 97%, transparent);
+}
+
+/* Caption row at the top of every demo. The outer .exd holds the border;
+   the head just draws a divider below itself. */
+.exd__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  background: color-mix(in srgb, var(--bg) 97%, transparent);
+}
+
+/* Markdown / report bodies sit inside .exd; no need for their own border. */
+.exd-md,
+.exd-report {
+  background: color-mix(in srgb, var(--bg) 97%, transparent);
+}
+
+.exd__title {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.exd__hint,
+.exd__live,
+.exd__count {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--muted);
+  font-feature-settings: 'tnum';
+}
+
+.exd__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.exd__head-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.exd__live-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink);
+  animation: exd-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes exd-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+   Google Sheets embed
+   ============================================================ */
+
+.gsheet {
+  background: #ffffff;
+  border: 1px solid #d3d3d3;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+  color: #202124;
+  font-size: 13px;
+}
+
+/* Title bar — file name */
+.gsheet__title-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px 4px;
+  border-bottom: none;
+}
+
+.gsheet__doc-name {
+  font-size: 14px;
+  color: #202124;
+  font-weight: 500;
+}
+
+.gsheet__doc-sub {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+/* Menu bar (File / Edit / View …) */
+.gsheet__menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px 6px;
+  border-bottom: 1px solid #e8eaed;
+  font-size: 12px;
+  color: #444746;
+}
+
+.gsheet__menu-item {
+  cursor: default;
+  padding: 3px 8px;
+  border-radius: 3px;
+  user-select: none;
+}
+
+.gsheet__menu-item:hover {
+  background: #f0f3f4;
+}
+
+/* Formula bar */
+.gsheet__formula {
+  display: flex;
+  align-items: stretch;
+  background: #ffffff;
+  border-bottom: 1px solid #c4c7c5;
+  height: 30px;
+}
+
+.gsheet__cellref {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  font-size: 12px;
+  color: #202124;
+  border-right: 1px solid #e8eaed;
+  font-feature-settings: 'tnum';
+  user-select: none;
+}
+
+.gsheet__fx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  font-style: italic;
+  font-size: 13px;
+  color: #5f6368;
+  border-right: 1px solid #e8eaed;
+  font-family: 'Times New Roman', 'Georgia', serif;
+  user-select: none;
+}
+
+.gsheet__formula-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 13px;
+  color: #202124;
+  background: transparent;
+}
+
+.gsheet__formula-input:focus {
+  background: #f8f9fa;
+}
+
+.gsheet__formula-input:disabled {
+  color: #bdc1c6;
+  cursor: default;
+}
+
+/* Sheet body */
+.gsheet__sheet {
+  background: #ffffff;
+  overflow-x: auto;
+}
+
+/* Grid */
+.gsheet-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font: inherit;
+  background: #ffffff;
+}
+
+/* Top-left empty cell above row numbers */
+.gsheet-grid__corner {
+  width: 36px;
+  height: 22px;
+  background: #f8f9fa;
+  border-right: 1px solid #c4c7c5;
+  border-bottom: 1px solid #c4c7c5;
+}
+
+/* Column letter row */
+.gsheet-grid__colhead {
+  background: #f8f9fa;
+  color: #5f6368;
+  font-size: 11px;
+  font-weight: 400;
+  text-align: center;
+  padding: 4px 8px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #c4c7c5;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.gsheet-grid__colhead:last-child {
+  border-right: none;
+}
+
+/* Row number column */
+.gsheet-grid__rowhead {
+  width: 36px;
+  background: #f8f9fa;
+  color: #5f6368;
+  font-size: 11px;
+  font-weight: 400;
+  text-align: center;
+  padding: 4px 8px;
+  border-right: 1px solid #c4c7c5;
+  border-bottom: 1px solid #e0e0e0;
+  font-feature-settings: 'tnum';
+  user-select: none;
+}
+
+/* Data cells */
+.gsheet-grid__cell {
+  padding: 0;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
+  position: relative;
+  vertical-align: middle;
+  min-width: 90px;
+}
+
+.gsheet-grid__cell:last-child {
+  border-right: none;
+}
+
+.gsheet-grid__cell input {
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: #202124;
+  caret-color: #1a73e8;
+}
+
+/* Header data row (row 1 with column names) */
+.gsheet-grid__cell--head {
+  background: #ffffff;
+  font-weight: 700;
+  color: #202124;
+  padding: 6px 8px;
+}
+
+/* Selected cell — Google blue 2px outline */
+.gsheet-grid__cell.is-active {
+  outline: 2px solid #1a73e8;
+  outline-offset: -1px;
+  z-index: 2;
+}
+
+/* Trim trailing borders */
+.gsheet-grid tbody tr:last-child .gsheet-grid__cell,
+.gsheet-grid tbody tr:last-child .gsheet-grid__rowhead {
+  border-bottom: none;
+}
+
+/* Sheet tabs at the bottom */
+.gsheet__tabs {
+  display: flex;
+  align-items: stretch;
+  background: #f8f9fa;
+  border-top: 1px solid #c4c7c5;
+  padding: 0 6px;
+  height: 34px;
+}
+
+.gsheet__tab-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: 4px 6px 4px 2px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #5f6368;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  align-self: center;
+  transition: background 0.15s;
+}
+
+.gsheet__tab-add:hover {
+  background: #e8eaed;
+}
+
+.gsheet__tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: #5f6368;
+  padding: 0 14px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.gsheet__tab:hover:not(.is-active) {
+  background: #f0f3f4;
+}
+
+.gsheet__tab.is-active {
+  background: #ffffff;
+  color: #137333;
+  font-weight: 500;
+  box-shadow: inset 0 -3px 0 0 #137333;
+}
+
+/* ============================================================
+   Markdown output
+   ============================================================ */
+
+.exd-md {
+  margin: 0;
+  padding: 12px 14px;
+  font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  background: transparent;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ============================================================
+   Live report — rule-file selector + active rule list + annotated md
+   ============================================================ */
+
+/* Selector row at the top of the report — same look as the old QC
+   header so the visual is consistent. */
+.exd-report__set-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.exd-report__set-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.exd-report__set-select {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: var(--bg);
+  padding: 4px 26px 4px 10px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--ink);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  border-radius: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 4l3 3 3-3' stroke='%235f6368' stroke-width='1.2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.exd-report__set-select:hover {
+  border-color: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+.exd-report__set-desc {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0;
+  font-style: italic;
+  text-transform: none;
+}
+
+/* Comma list of rule IDs that are running against the document. */
+.exd-report__rule-list {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.exd-report__rule-list-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.exd-report__rule-list-items {
+  color: var(--ink-soft);
+}
+
+.exd-report__rule-item code {
+  font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;
+  font-size: 11px;
+  background: none;
+  padding: 0;
+  border: none;
+  color: var(--ink);
+}
+
+/* Prominent status banner at the top of the report. Reads at a glance:
+   are checks clean or are there issues, and how many. */
+.exd-report__banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  transition: background 0.28s ease;
+}
+
+.exd-report__banner.is-issues {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.exd-report__banner-icon {
+  font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--ink);
+  transition: border-color 0.28s, color 0.28s;
+}
+
+.exd-report__banner.is-clean .exd-report__banner-icon {
+  color: var(--muted);
+  border-color: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+.exd-report__banner.is-issues .exd-report__banner-icon {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.exd-report__banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.exd-report__banner-headline {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.exd-report__banner.is-clean .exd-report__banner-headline {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.exd-report__banner-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  font-feature-settings: 'tnum';
+}
+
+.exd-report__banner-pct {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+
+.exd-report__banner.is-empty {
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.exd-report__banner.is-empty .exd-report__banner-icon {
+  color: var(--muted);
+  border-color: color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+.exd-report__banner.is-empty .exd-report__banner-headline {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ---------- annotated markdown view (the report body) ---------- */
+
+.exd-report__md {
+  background: var(--surface);
+  padding: 12px 14px;
+  font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  overflow-x: auto;
+  color: var(--ink);
+}
+
+.exd-report__md-line {
+  display: block;
+  padding: 0 4px;
+  margin: 0 -4px;
+  border-radius: 3px;
+  min-height: 1.55em;
+}
+
+.exd-report__md-text {
+  white-space: pre;
+}
+
+.exd-report__md-line.is-issue {
+  background: color-mix(in srgb, #c5221f 9%, transparent);
+  box-shadow: inset 2px 0 0 #c5221f;
+}
+
+.exd-report__md-line.is-issue .exd-report__md-text {
+  color: #8a1a17;
+  font-weight: 500;
+}
+
+.exd-report__md-reasons {
+  list-style: none;
+  margin: 2px 0 6px;
+  padding-left: 28px;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: #c5221f;
+  white-space: normal;
+}
+
+.exd-report__md-reasons li {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
+   Slideshow / Google-Slides-style teaching deck
+   ============================================================ */
+
+.slide-deck {
+  --gs-ink: #1f1f1f;
+  --gs-ink-soft: #5f6368;
+  --gs-rule: #dadce0;
+  --gs-rule-soft: #ebecf0;
+  --gs-stage: #f1f3f4;
+  --gs-toolbar: #f8f9fa;
+  --gs-blue: #1a73e8;
+  --gs-blue-soft: #e8f0fe;
+  --gs-yellow: #f6c108;
+
+  background: #ffffff;
+  border: 1px solid var(--gs-rule);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', Arial, sans-serif;
+  color: var(--gs-ink);
+}
+
+/* ---------- Top chrome (file name + menu + Present) ---------- */
+
+.slide-deck__chrome {
+  display: grid;
+  grid-template-columns: minmax(0, auto) 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--gs-rule);
+}
+
+.slide-deck__chrome-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.slide-deck__chrome-icon {
+  width: 22px;
+  height: 22px;
+  background: var(--gs-yellow);
+  color: #ffffff;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.slide-deck__chrome-name {
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gs-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slide-deck__chrome-folder {
+  font-size: 11px;
+  color: var(--gs-ink-soft);
+  font-weight: 400;
+}
+
+
+.slide-deck__chrome-menu {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--gs-ink-soft);
+  overflow: hidden;
+}
+
+.slide-deck__chrome-present {
+  appearance: none;
+  border: 1px solid var(--gs-rule);
+  background: #ffffff;
+  color: var(--gs-blue);
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.slide-deck__chrome-present:hover {
+  background: var(--gs-toolbar);
+  border-color: var(--gs-ink-soft);
+}
+
+/* ---------- Toolbar (decorative) ---------- */
+
+.slide-deck__toolbar {
+  background: var(--gs-toolbar);
+  border-bottom: 1px solid var(--gs-rule);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+}
+
+.slide-deck__tool {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--gs-ink-soft);
+  border-radius: 4px;
+  user-select: none;
+}
+
+.slide-deck__tool-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--gs-rule);
+  margin: 0 4px;
+  display: inline-block;
+}
+
+/* ---------- Stage with the slide canvas ---------- */
+
+.slide-deck__stage {
+  background: var(--gs-stage);
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-deck__canvas {
+  background: #ffffff;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 400px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(60, 64, 67, 0.16),
+    0 4px 14px rgba(60, 64, 67, 0.06);
+  border-radius: 2px;
+}
+
+.slide-deck__slide-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 44px;
+  box-sizing: border-box;
+  /* Hide rather than scroll at the slide-wrap level — long content inside
+     the slide is handled by the dedicated scrollable section below. */
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* ---------- Bottom controls ---------- */
+
+.slide-deck__controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-top: 1px solid var(--gs-rule);
+}
+
+.slide-deck__btn {
+  appearance: none;
+  border: 1px solid var(--gs-rule);
+  background: #ffffff;
+  font: inherit;
+  font-size: 12px;
+  color: var(--gs-ink);
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.slide-deck__btn:hover:not(:disabled) {
+  background: var(--gs-toolbar);
+  border-color: var(--gs-ink-soft);
+}
+
+.slide-deck__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.slide-deck__counter {
+  font-size: 12px;
+  color: var(--gs-ink-soft);
+  font-feature-settings: 'tnum';
+}
+
+.slide-deck__dots {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.slide-deck__dot {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gs-rule);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.slide-deck__dot:hover:not(.is-active) {
+  background: var(--gs-ink-soft);
+}
+
+.slide-deck__dot.is-active {
+  background: var(--gs-blue);
+}
+
+/* ============================================================
+   Slide content (lives inside .slide-deck__canvas)
+   ============================================================ */
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-family: 'Roboto', Arial, sans-serif;
+  color: var(--gs-ink);
+}
+
+.slide__eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gs-blue);
+  font-weight: 500;
+  margin-bottom: 10px;
+  font-feature-settings: 'tnum';
+}
+
+.slide__headline {
+  font-family: 'Google Sans Display', 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.18;
+  color: var(--gs-ink);
+  margin: 0 0 10px;
+}
+
+.slide__sub {
+  font-size: 15px;
+  color: var(--gs-ink-soft);
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  max-width: 64ch;
+}
+
+.slide__sub-meta {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gs-blue);
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+/* ---------- Title slide ---------- */
+
+.slide--title {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.slide--title .slide__eyebrow {
+  margin-bottom: 14px;
+}
+
+.slide--title .slide__headline {
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  margin-bottom: 14px;
+}
+
+.slide--title .slide__sub {
+  margin-bottom: 22px;
+}
+
+.slide__tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.slide__tag {
+  font-size: 12px;
+  color: var(--gs-ink-soft);
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: var(--gs-stage);
+  font-weight: 400;
+  font-feature-settings: 'tnum';
+}
+
+/* ---------- Concept / anatomy slide ---------- */
+
+.slide__anatomy {
+  margin-top: 4px;
+  background: var(--gs-toolbar);
+  border: 1px solid var(--gs-rule);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.slide__anatomy-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.slide__anatomy-col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.slide__anatomy-value {
+  font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gs-ink);
+  padding: 6px 8px;
+  background: #ffffff;
+  border: 1px solid var(--gs-rule);
+  border-radius: 6px;
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slide__anatomy-arrow {
+  color: var(--gs-blue);
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.slide__anatomy-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gs-blue);
+  font-weight: 600;
+}
+
+.slide__anatomy-desc {
+  font-size: 11px;
+  color: var(--gs-ink-soft);
+  line-height: 1.35;
+  margin-top: 1px;
+}
+
+/* ---------- Tables overview slide ---------- */
+
+.slide__table-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.slide__table-card {
+  background: #ffffff;
+  border: 1px solid var(--gs-rule);
+  border-left: 4px solid var(--gs-blue);
+  border-radius: 6px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slide__table-card-name {
+  font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--gs-blue);
+}
+
+.slide__table-card-count {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gs-ink-soft);
+  font-weight: 500;
+  font-feature-settings: 'tnum';
+}
+
+.slide__table-card-desc {
+  font-size: 13px;
+  color: var(--gs-ink);
+  line-height: 1.4;
+}
+
+/* ---------- Per-table deep-dive slide ---------- */
+
+.slide__schema-list-wrap {
+  margin-top: 4px;
+  border: 1px solid var(--gs-rule);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  /* Take the remaining vertical space inside the slide and let the inner
+     row list scroll instead of overflowing the canvas. */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.slide__schema-head {
+  display: grid;
+  grid-template-columns: 1.4fr 24px 1fr 0.7fr;
+  gap: 14px;
+  padding: 8px 16px;
+  background: var(--gs-toolbar);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gs-ink-soft);
+  font-weight: 600;
+  border-bottom: 1px solid var(--gs-rule);
+  flex-shrink: 0;
+}
+
+.slide__schema-head span:last-child {
+  text-align: right;
+}
+
+.slide__schema-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.slide__schema-row {
+  display: grid;
+  grid-template-columns: 1.4fr 24px 1fr 0.7fr;
+  gap: 14px;
+  padding: 7px 16px;
+  align-items: baseline;
+  font-size: 13px;
+  border-bottom: 1px solid var(--gs-rule-soft);
+}
+
+.slide__schema-row:last-child {
+  border-bottom: none;
+}
+
+.slide__schema-name {
+  font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+  font-weight: 500;
+  color: var(--gs-ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.slide__schema-arrow {
+  color: var(--gs-ink-soft);
+  font-size: 12px;
+  text-align: center;
+}
+
+.slide__schema-raw {
+  font-family: 'Roboto Mono', ui-monospace, Menlo, monospace;
+  color: var(--gs-ink-soft);
+  font-size: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.slide__schema-type {
+  font-size: 10px;
+  color: var(--gs-blue);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* ---------- Type breakdown — bar (title slide) ---------- */
+
+.slide__typebar {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.slide__typebar-track {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--gs-stage);
+}
+
+.slide__typebar-seg {
+  height: 100%;
+  background: var(--gs-blue);
+  transition: width 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.slide__typebar-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.slide__typebar-legend-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--gs-ink-soft);
+}
+
+.slide__typebar-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--gs-blue);
+  align-self: center;
+}
+
+.slide__typebar-legend-count {
+  font-weight: 600;
+  color: var(--gs-ink);
+  font-feature-settings: 'tnum';
+}
+
+.slide__typebar-legend-type {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+/* Per-type colors — used by both the bar and the chips so a "string"
+   chip in the tables overview matches its segment in the title bar. */
+.slide__typebar-seg--string,
+.slide__typebar-dot--string,
+.slide__type-chip--string {
+  background: #1a73e8;
+  color: #1a73e8;
+}
+.slide__typebar-seg--integer,
+.slide__typebar-dot--integer,
+.slide__type-chip--integer {
+  background: #5e35b1;
+  color: #5e35b1;
+}
+.slide__typebar-seg--decimal,
+.slide__typebar-dot--decimal,
+.slide__type-chip--decimal {
+  background: #137333;
+  color: #137333;
+}
+.slide__typebar-seg--date,
+.slide__typebar-dot--date,
+.slide__type-chip--date {
+  background: #ea8600;
+  color: #ea8600;
+}
+.slide__typebar-seg--enum,
+.slide__typebar-dot--enum,
+.slide__type-chip--enum {
+  background: #b06000;
+  color: #b06000;
+}
+.slide__typebar-seg--boolean,
+.slide__typebar-dot--boolean,
+.slide__type-chip--boolean {
+  background: #c5221f;
+  color: #c5221f;
+}
+
+/* ---------- Type chips (tables overview + per-table) ---------- */
+
+.slide__table-card-types,
+.slide__table-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.slide__table-types {
+  margin: -8px 0 14px;
+}
+
+.slide__type-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid currentColor;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-feature-settings: 'tnum';
+  /* Override the per-type "background" rule above — the colored bg
+     belongs only to the bar/dot variants, not the chip surface. */
+  background: #ffffff;
+}
+
+.slide__type-chip-count {
+  font-weight: 700;
+}
+
+.slide__type-chip-type {
+  font-weight: 500;
+}
+
+/* ---------- Owners slide ---------- */
+
+.slide__owner-cards {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  /* Scroll inside the slide if there are more owners than fit. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.slide__owner-card {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--gs-rule);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.slide__owner-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gs-blue-soft);
+  color: var(--gs-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.slide__owner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.slide__owner-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gs-ink);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slide__owner-role {
+  font-size: 11px;
+  color: var(--gs-ink-soft);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+/* ============================================================
+   responsive
+   ============================================================ */
+
+@media (max-width: 720px) {
+  .slide-deck__chrome {
+    grid-template-columns: auto 1fr;
+  }
+  .slide-deck__chrome-menu {
+    display: none;
+  }
+  .slide-deck__stage {
+    padding: 12px;
+  }
+  .slide-deck__slide-wrap {
+    padding: 24px 24px;
+  }
+  .slide__headline {
+    font-size: 24px;
+  }
+  .slide--title .slide__headline {
+    font-size: 28px;
+  }
+  .slide-deck__btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}
+
+
+@media (max-width: 720px) {
+  .exd {
+    margin: 18px 0;
+  }
+  .gsheet {
+    font-size: 12px;
+  }
+  .gsheet-grid__cell input,
+  .gsheet-grid__cell--head {
+    padding: 5px 6px;
+  }
+  .gsheet-grid__cell {
+    min-width: 70px;
+  }
+  .exd-md {
+    font-size: 11px;
+  }
+}

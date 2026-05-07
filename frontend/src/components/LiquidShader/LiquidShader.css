@@ -1,0 +1,21 @@
+/* ============================================================
+   liquid-shader · full-screen WebGL fluid color wash behind UI
+   ============================================================ */
+
+.liquid-shader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-shader {
+    display: none;
+  }
+}
