@@ -1,6 +1,6 @@
 ---
 slug: presentation-deck
-title: Dynamic Exports
+title: Project 3
 date: 2026-05-05
 type: showcase
 tags: code, project, interactive

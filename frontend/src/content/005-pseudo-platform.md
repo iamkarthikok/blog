@@ -1,6 +1,6 @@
 ---
 slug: pseudo-platform
-title: Tying it all together - Custom platform
+title: UI Example
 date: 2026-05-06
 type: showcase
 tags: code, project, interactive

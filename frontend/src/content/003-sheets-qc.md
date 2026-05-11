@@ -1,6 +1,6 @@
 ---
 slug: sheets-qc
-title: Applying a Guardrail
+title: Project 2
 date: 2026-05-03
 type: showcase
 tags: code, project, interactive

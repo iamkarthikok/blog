@@ -1,6 +1,6 @@
 ---
 slug: extending
-title: Extending the project
+title: Further Thoughts
 date: 2026-05-08
 type: page
 tags: project, reflection

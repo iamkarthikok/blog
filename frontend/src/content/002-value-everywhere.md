@@ -1,6 +1,6 @@
 ---
 slug: value-everywhere
-title: Project Inception
+title: Project 1
 date: 2026-05-02
 type: showcase
 tags: code, project, interactive
